@@ -48,7 +48,7 @@ public class SpringBootFileManagerApplication {
                     // 获取文件基本属性
                     BasicFileAttributes attrs = Files.readAttributes(pathObj, BasicFileAttributes.class);
 
-                    // 封装文件对象
+                    // 封装返回JSON数据
                     JSONObject fileItem = new JSONObject();
                     fileItem.put("name", pathObj.getFileName().toString());
                     fileItem.put("rights", getPermissions(pathObj)); // 文件权限
