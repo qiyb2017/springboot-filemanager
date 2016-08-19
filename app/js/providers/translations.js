@@ -732,7 +732,7 @@
             icons: '图标',
             list: '列表',
             name: '名称',
-            size: '尺寸',
+            size: '大小',
             actions: '操作',
             date: '日期',
             selection: '选择',
@@ -743,7 +743,7 @@
             wait: '等待',
             move: '移动',
             download: '下载',
-            view_item: '查看子项',
+            view_item: '预览',
             remove: '删除',
             edit: '编辑',
             copy: '复制',
@@ -770,12 +770,12 @@
             exec: '执行',
             original: '原始',
             changes: '变化',
-            recursive: '递归',
+            recursive: '应用子目录',
             preview: '成员预览',
             open: '打开',
             these_elements: '共 {{total}} 个',
             new_folder: '新文件夹',
-            download_as_zip: '下载的ZIP'
+            download_as_zip: '下载ZIP'
         });
 
         $translateProvider.translations('ru', {

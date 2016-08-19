@@ -11,9 +11,9 @@ var del = require('del');
 var path = require('path');
 
 // Vars
-var src = 'src/';
-var dst = 'dist/';
-var tplPath = 'src/templates'; //must be same as fileManagerConfig.tplPath
+var src = 'app/';
+var dst = 'src/main/resources/static/dist/';
+var tplPath = 'app/templates'; //must be same as fileManagerConfig.tplPath
 var jsFile = 'angular-filemanager.min.js';
 var cssFile = 'angular-filemanager.min.css';
 
@@ -26,7 +26,7 @@ gulp.task('cache-templates', function () {
     .pipe(templateCache(jsFile, {
       module: 'FileManagerApp',
       base: function(file) {
-        return tplPath + '/' + path.basename(file.history);
+        return tplPath + '/' + path.basename(file.history.toString());
       }
     }))
     .pipe(gulp.dest(dst));
