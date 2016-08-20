@@ -33,6 +33,11 @@ import java.util.zip.ZipOutputStream;
 @RestController
 @RequestMapping(value = "fileManager")
 public class SpringBootFileManagerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootFileManagerApplication.class, args);
+    }
+
     /*
      *  文件管理根目录,此处为了方便采用Hard Code
      */
@@ -344,11 +349,6 @@ public class SpringBootFileManagerApplication {
             return error(e.getMessage());
         }
     }
-
-    public static void main(String[] args) {
-        SpringApplication.run(SpringBootFileManagerApplication.class, args);
-    }
-
 
 
     /*
