@@ -22,12 +22,18 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.zip.ZipOutputStream;
+
+import static org.shaofan.utils.RarUtils.unRarFile;
+import static org.shaofan.utils.TargzUtils.unTargzFile;
+import static org.shaofan.utils.ZipUtils.unZipFiles;
+import static org.shaofan.utils.ZipUtils.zipFiles;
 
 @SpringBootApplication
 @RestController
@@ -67,7 +73,7 @@ public class SpringBootFileManagerApplication {
                     // 封装返回JSON数据
                     JSONObject fileItem = new JSONObject();
                     fileItem.put("name", pathObj.getFileName().toString());
-                    fileItem.put("rights", getPermissions(pathObj)); // 文件权限
+                    fileItem.put("rights", org.shaofan.utils.FileUtils.getPermissions(pathObj)); // 文件权限
                     fileItem.put("date", dt.format(new Date(attrs.lastModifiedTime().toMillis())));
                     fileItem.put("size", attrs.size());
                     fileItem.put("type", attrs.isDirectory() ? "dir" : "file");
@@ -98,8 +104,8 @@ public class SpringBootFileManagerApplication {
                 if (part.getContentType() != null) {  // 忽略路径字段,只处理文件类型
                     String path = ROOT + destination;
 
-                    File f = new File(path, getFileName(part.getHeader("content-disposition")));
-                    if (!write(part.getInputStream(), f)) {
+                    File f = new File(path, org.shaofan.utils.FileUtils.getFileName(part.getHeader("content-disposition")));
+                    if (!org.shaofan.utils.FileUtils.write(part.getInputStream(), f)) {
                         throw new Exception("文件上传失败");
                     }
                 }
@@ -170,7 +176,7 @@ public class SpringBootFileManagerApplication {
             for (int i = 0; i < items.size(); i++) {
                 String path = items.getString(i);
                 File f = new File(ROOT, path);
-                setPermissions(f, perms, recursive); // 设置权限
+                org.shaofan.utils.FileUtils.setPermissions(f, perms, recursive); // 设置权限
             }
             return success();
         } catch (Exception e) {
@@ -342,44 +348,25 @@ public class SpringBootFileManagerApplication {
             String destination = json.getString("destination");
             String zipName = json.getString("item");
             String folderName = json.getString("folderName");
-            unZipFiles(new File(ROOT, zipName), ROOT + destination);
+            File file = new File(ROOT, zipName);
 
+            String extension = org.shaofan.utils.FileUtils.getExtension(zipName);
+            switch (extension) {
+                case ".zip":
+                    unZipFiles(file, ROOT + destination);
+                    break;
+                case ".gz":
+                    unTargzFile(file, ROOT + destination);
+                    break;
+                case ".rar":
+                    unRarFile(file, ROOT + destination);
+            }
             return success();
         } catch (Exception e) {
             return error(e.getMessage());
         }
     }
 
-
-    /*
-     * 以下为使用到的工具方法
-     */
-
-    private String getFileName(String header) {
-        String[] tempArr1 = header.split(";");
-        String[] tempArr2 = tempArr1[2].split("=");
-        //获取文件名，兼容各种浏览器的写法
-        return tempArr2[1].substring(tempArr2[1].lastIndexOf("\\") + 1).replaceAll("\"", "");
-
-    }
-
-    private String getPermissions(Path path) throws IOException {
-        PosixFileAttributeView fileAttributeView = Files.getFileAttributeView(path, PosixFileAttributeView.class);
-        PosixFileAttributes readAttributes = fileAttributeView.readAttributes();
-        Set<PosixFilePermission> permissions = readAttributes.permissions();
-        return PosixFilePermissions.toString(permissions);
-    }
-
-    private String setPermissions(File file, String permsCode, boolean recursive) throws IOException {
-        PosixFileAttributeView fileAttributeView = Files.getFileAttributeView(file.toPath(), PosixFileAttributeView.class);
-        fileAttributeView.setPermissions(PosixFilePermissions.fromString(permsCode));
-        if (file.isDirectory() && recursive && file.listFiles() != null) {
-            for (File f : file.listFiles()) {
-                setPermissions(f, permsCode, true);
-            }
-        }
-        return permsCode;
-    }
 
     private JSONObject error(String msg) {
 
@@ -405,100 +392,4 @@ public class SpringBootFileManagerApplication {
         return jsonObject;
     }
 
-    private boolean write(InputStream inputStream, File f) {
-        boolean ret = false;
-
-        try (OutputStream outputStream = new FileOutputStream(f)) {
-
-            int read;
-            byte[] bytes = new byte[1024];
-
-            while ((read = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
-            }
-            ret = true;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return ret;
-    }
-
-    private void zipFiles(ZipOutputStream out, String path, File... srcFiles) {
-        path = path.replaceAll("\\*", "/");
-        if (!path.endsWith("/")) {
-            path += "/";
-        }
-        byte[] buf = new byte[1024];
-        try {
-            for (File srcFile : srcFiles) {
-                if (srcFile.isDirectory()) {
-                    File[] files = srcFile.listFiles();
-                    String srcPath = srcFile.getName();
-                    srcPath = srcPath.replaceAll("\\*", "/");
-                    if (!srcPath.endsWith("/")) {
-                        srcPath += "/";
-                    }
-                    out.putNextEntry(new ZipEntry(path + srcPath));
-                    zipFiles(out, path + srcPath, files);
-                } else {
-                    try (FileInputStream in = new FileInputStream(srcFile)) {
-                        out.putNextEntry(new ZipEntry(path + srcFile.getName()));
-                        int len;
-                        while ((len = in.read(buf)) > 0) {
-                            out.write(buf, 0, len);
-                        }
-                        out.closeEntry();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void unZipFiles(File zipFile, String descDir) throws IOException {
-        if (!descDir.endsWith("/")) {
-            descDir += "/";
-        }
-        File pathFile = new File(descDir);
-        if (!pathFile.exists()) {
-            pathFile.mkdirs();
-        }
-        ZipFile zip = new ZipFile(zipFile);
-
-        for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
-            ZipEntry entry = (ZipEntry) entries.nextElement();
-            String zipEntryName = entry.getName();
-            InputStream in = zip.getInputStream(entry);
-            String outPath = (descDir + zipEntryName).replaceAll("\\*", "/");
-            //判断路径是否存在,不存在则创建文件路径
-            File file = new File(outPath.substring(0, outPath.lastIndexOf('/')));
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-            //判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压
-            if (new File(outPath).isDirectory()) {
-                continue;
-            }
-
-            OutputStream out = new FileOutputStream(outPath);
-            byte[] buf1 = new byte[1024];
-            int len;
-            while ((len = in.read(buf1)) > 0) {
-                out.write(buf1, 0, len);
-            }
-            in.close();
-            out.close();
-        }
-    }
 }
