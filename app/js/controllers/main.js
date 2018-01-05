@@ -164,6 +164,17 @@
             $scope.modal('edit');
         };
 
+        $scope.openEditDocumentItem = function() {
+            var item = $scope.singleSelection();
+            var data = {
+                url: $scope.apiMiddleware.getUrl(item),
+                filename: item.model.name
+            };
+            var path = [$scope.config.documentViewUrl, $.param(data)].join('?');
+            $("#iframeEditor").attr('src', path);
+            $scope.modal('editDoc');
+        };
+
         $scope.modal = function(id, hide, returnElement) {
             var element = $('#' + id);
             element.modal(hide ? 'hide' : 'show');

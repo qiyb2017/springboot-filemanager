@@ -9,6 +9,8 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,6 +20,30 @@ import java.util.Set;
  * @date 2016年08月25日 10:02
  */
 public class FileUtils {
+
+    private static List<String> ExtsDocument = Arrays.asList
+            (
+                    ".doc", ".docx", ".docm",
+                    ".dot", ".dotx", ".dotm",
+                    ".odt", ".fodt", ".rtf", ".txt",
+                    ".html", ".htm", ".mht",
+                    ".pdf", ".djvu", ".fb2", ".epub", ".xps"
+            );
+
+    private static List<String> ExtsSpreadsheet = Arrays.asList
+            (
+                    ".xls", ".xlsx", ".xlsm",
+                    ".xlt", ".xltx", ".xltm",
+                    ".ods", ".fods", ".csv"
+            );
+
+    private static List<String> ExtsPresentation = Arrays.asList
+            (
+                    ".pps", ".ppsx", ".ppsm",
+                    ".ppt", ".pptx", ".pptm",
+                    ".pot", ".potx", ".potm",
+                    ".odp", ".fodp"
+            );
 
     public static String getExtension(String fileName) {
         if (StringUtils.INDEX_NOT_FOUND == StringUtils.indexOf(fileName, "."))
@@ -109,5 +135,20 @@ public class FileUtils {
             parentFile.mkdir();
         }
 
+    }
+
+    public static FileType GetFileType(String fileName) {
+        String ext = getExtension(fileName).toLowerCase();
+
+        if (ExtsDocument.contains(ext))
+            return FileType.Text;
+
+        if (ExtsSpreadsheet.contains(ext))
+            return FileType.Spreadsheet;
+
+        if (ExtsPresentation.contains(ext))
+            return FileType.Presentation;
+
+        return FileType.Text;
     }
 }

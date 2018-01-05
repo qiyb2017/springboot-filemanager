@@ -31,6 +31,12 @@
             </a>
         </li>
 
+        <li ng-show="config.allowedActions.edit && singleSelection() && singleSelection().isDocument()">
+            <a href="" tabindex="-1" ng-click="openEditDocumentItem()">
+                <i class="glyphicon glyphicon-pencil"></i> {{'view_item' | translate}}
+            </a>
+        </li>
+
         <li ng-show="config.allowedActions.rename && singleSelection()">
             <a href="" tabindex="-1" ng-click="modal('rename')">
                 <i class="glyphicon glyphicon-edit"></i> {{'rename' | translate}}

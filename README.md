@@ -12,6 +12,8 @@
 * 直接压缩、解压缩zip文件(支持解压zip、tar.gz、rar)
 * 支持设置文件权限(UNIX chmod格式)
 * 移动端支持
+* 支持 OFFICE 等文档在线预览 (原生 HTML，非转码成 PDF)
+* 即将支持 OFFICE 等文档在线编辑以及协同写作 (估计下一版本吧)
 
 
 #[更多介绍请访问](http://shaofan.org/angular-filemanager/)

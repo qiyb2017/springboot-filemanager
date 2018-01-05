@@ -47,6 +47,10 @@
             return !this.isFolder() && fileManagerConfig.isEditableFilePattern.test(this.model.name);
         };
 
+        Item.prototype.isDocument = function() {
+            return !this.isFolder() && fileManagerConfig.isDocumentFilePattern.test(this.model.name);
+        };
+
         Item.prototype.isImage = function() {
             return fileManagerConfig.isImageFilePattern.test(this.model.name);
         };

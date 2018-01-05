@@ -20,6 +20,7 @@
             compressUrl: 'bridges/php/handler.php',
             extractUrl: 'bridges/php/handler.php',
             permissionsUrl: 'bridges/php/handler.php',
+            documentViewUrl: 'bridges/php/handler.php',
 
             searchForm: true,
             sidebar: true,
@@ -56,6 +57,7 @@
 
             isEditableFilePattern: /\.(txt|diff?|patch|svg|asc|cnf|cfg|conf|html?|.html|cfm|cgi|aspx?|ini|pl|py|md|css|cs|js|jsp|log|htaccess|htpasswd|gitignore|gitattributes|env|json|atom|eml|rss|markdown|sql|xml|xslt?|sh|rb|as|bat|cmd|cob|for|ftn|frm|frx|inc|lisp|scm|coffee|php[3-6]?|java|c|cbl|go|h|scala|vb|tmpl|lock|go|yml|yaml|tsv|lst)$/i,
             isImageFilePattern: /\.(jpe?g|gif|bmp|png|svg|tiff?)$/i,
+            isDocumentFilePattern: /\.(docx|doc|xlsx|xls|pptx|ppt)$/i,
             isExtractableFilePattern: /\.(gz|tar|rar|g?zip)$/i,
             tplPath: 'src/templates'
         };
