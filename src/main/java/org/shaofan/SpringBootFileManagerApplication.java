@@ -78,7 +78,10 @@ public class SpringBootFileManagerApplication {
                     // 封装返回JSON数据
                     JSONObject fileItem = new JSONObject();
                     fileItem.put("name", pathObj.getFileName().toString());
-                    fileItem.put("rights", org.shaofan.utils.FileUtils.getPermissions(pathObj)); // 文件权限
+
+                    // windows 下这句话会影响权限导致无法读取文件？ 待验证 目前先注释掉
+//                    fileItem.put("rights", org.shaofan.utils.FileUtils.getPermissions(pathObj)); // 文件权限
+
                     fileItem.put("date", dt.format(new Date(attrs.lastModifiedTime().toMillis())));
                     fileItem.put("size", attrs.size());
                     fileItem.put("type", attrs.isDirectory() ? "dir" : "file");
