@@ -3,6 +3,7 @@ package org.shaofan;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.FileCopyUtils;
@@ -35,6 +36,9 @@ import static org.shaofan.utils.TargzUtils.unTargzFile;
 import static org.shaofan.utils.ZipUtils.unZipFiles;
 import static org.shaofan.utils.ZipUtils.zipFiles;
 
+/**
+ * @author shaofan
+ */
 @SpringBootApplication
 @RestController
 @RequestMapping(value = "fileManager")
@@ -44,10 +48,11 @@ public class SpringBootFileManagerApplication {
         SpringApplication.run(SpringBootFileManagerApplication.class, args);
     }
 
-    /*
-     *  文件管理根目录,此处为了方便采用Hard Code
+    /**
+     * 文件管理器目录
      */
-    public static String ROOT = "/Users/shaofan/Desktop/";
+    @Value("${filemanager.root}")
+    private String root;
 
     /**
      * 展示文件列表
@@ -62,7 +67,7 @@ public class SpringBootFileManagerApplication {
             // 返回的结果集
             List<JSONObject> fileItems = new ArrayList<>();
 
-            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(ROOT, path))) {
+            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(root, path))) {
 
                 String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
                 SimpleDateFormat dt = new SimpleDateFormat(DATE_FORMAT);
@@ -102,7 +107,7 @@ public class SpringBootFileManagerApplication {
 
             for (Part part : parts) {
                 if (part.getContentType() != null) {  // 忽略路径字段,只处理文件类型
-                    String path = ROOT + destination;
+                    String path = root + destination;
 
                     File f = new File(path, org.shaofan.utils.FileUtils.getFileName(part.getHeader("content-disposition")));
                     if (!org.shaofan.utils.FileUtils.write(part.getInputStream(), f)) {
@@ -122,7 +127,7 @@ public class SpringBootFileManagerApplication {
     @RequestMapping("preview")
     public void preview(HttpServletResponse response, String path) throws IOException {
 
-        File file = new File(ROOT, path);
+        File file = new File(root, path);
         if (!file.exists()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource Not Found");
             return;
@@ -152,7 +157,7 @@ public class SpringBootFileManagerApplication {
     public Object createFolder(@RequestBody JSONObject json) {
         try {
             String newPath = json.getString("newPath");
-            File newDir = new File(ROOT + newPath);
+            File newDir = new File(root + newPath);
             if (!newDir.mkdir()) {
                 throw new Exception("不能创建目录: " + newPath);
             }
@@ -175,7 +180,7 @@ public class SpringBootFileManagerApplication {
             JSONArray items = json.getJSONArray("items");
             for (int i = 0; i < items.size(); i++) {
                 String path = items.getString(i);
-                File f = new File(ROOT, path);
+                File f = new File(root, path);
                 org.shaofan.utils.FileUtils.setPermissions(f, perms, recursive); // 设置权限
             }
             return success();
@@ -196,8 +201,8 @@ public class SpringBootFileManagerApplication {
             for (int i = 0; i < items.size(); i++) {
                 String path = items.getString(i);
 
-                File srcFile = new File(ROOT, path);
-                File destFile = new File(ROOT + newpath, srcFile.getName());
+                File srcFile = new File(root, path);
+                File destFile = new File(root + newpath, srcFile.getName());
 
                 FileCopyUtils.copy(srcFile, destFile);
             }
@@ -219,8 +224,8 @@ public class SpringBootFileManagerApplication {
             for (int i = 0; i < items.size(); i++) {
                 String path = items.getString(i);
 
-                File srcFile = new File(ROOT, path);
-                File destFile = new File(ROOT + newpath, srcFile.getName());
+                File srcFile = new File(root, path);
+                File destFile = new File(root + newpath, srcFile.getName());
 
                 if (srcFile.isFile()) {
                     FileUtils.moveFile(srcFile, destFile);
@@ -243,7 +248,7 @@ public class SpringBootFileManagerApplication {
             JSONArray items = json.getJSONArray("items");
             for (int i = 0; i < items.size(); i++) {
                 String path = items.getString(i);
-                File srcFile = new File(ROOT, path);
+                File srcFile = new File(root, path);
                 if (!FileUtils.deleteQuietly(srcFile)) {
                     throw new Exception("删除失败: " + srcFile.getAbsolutePath());
                 }
@@ -263,8 +268,8 @@ public class SpringBootFileManagerApplication {
             String path = json.getString("item");
             String newPath = json.getString("newItemPath");
 
-            File srcFile = new File(ROOT, path);
-            File destFile = new File(ROOT, newPath);
+            File srcFile = new File(root, path);
+            File destFile = new File(root, newPath);
             if (srcFile.isFile()) {
                 FileUtils.moveFile(srcFile, destFile);
             } else {
@@ -283,7 +288,7 @@ public class SpringBootFileManagerApplication {
     public Object getContent(@RequestBody JSONObject json) {
         try {
             String path = json.getString("item");
-            File srcFile = new File(ROOT, path);
+            File srcFile = new File(root, path);
 
             String content = FileUtils.readFileToString(srcFile);
 
@@ -304,7 +309,7 @@ public class SpringBootFileManagerApplication {
             String path = json.getString("item");
             String content = json.getString("content");
 
-            File srcFile = new File(ROOT, path);
+            File srcFile = new File(root, path);
             FileUtils.writeStringToFile(srcFile, content);
 
             return success();
@@ -324,11 +329,11 @@ public class SpringBootFileManagerApplication {
             JSONArray items = json.getJSONArray("items");
             List<File> files = new ArrayList<>();
             for (int i = 0; i < items.size(); i++) {
-                File f = new File(ROOT, items.getString(i));
+                File f = new File(root, items.getString(i));
                 files.add(f);
             }
 
-            File zip = new File(ROOT + destination, compressedFilename);
+            File zip = new File(root + destination, compressedFilename);
 
             try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip))) {
                 zipFiles(out, "", files.toArray(new File[files.size()]));
@@ -348,18 +353,18 @@ public class SpringBootFileManagerApplication {
             String destination = json.getString("destination");
             String zipName = json.getString("item");
             String folderName = json.getString("folderName");
-            File file = new File(ROOT, zipName);
+            File file = new File(root, zipName);
 
             String extension = org.shaofan.utils.FileUtils.getExtension(zipName);
             switch (extension) {
                 case ".zip":
-                    unZipFiles(file, ROOT + destination);
+                    unZipFiles(file, root + destination);
                     break;
                 case ".gz":
-                    unTargzFile(file, ROOT + destination);
+                    unTargzFile(file, root + destination);
                     break;
                 case ".rar":
-                    unRarFile(file, ROOT + destination);
+                    unRarFile(file, root + destination);
             }
             return success();
         } catch (Exception e) {

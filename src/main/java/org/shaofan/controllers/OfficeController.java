@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * @author shaofan
+ */
 @Controller
 @RequestMapping("/office")
 public class OfficeController {
