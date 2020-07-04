@@ -71,6 +71,7 @@ public class SpringBootFileManagerApplication {
 
                 String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
                 SimpleDateFormat dt = new SimpleDateFormat(DATE_FORMAT);
+                System.out.println("list ation ......."+dt.format(new Date()));
                 for (Path pathObj : directoryStream) {
                     // 获取文件基本属性
                     BasicFileAttributes attrs = Files.readAttributes(pathObj, BasicFileAttributes.class);
@@ -103,6 +104,9 @@ public class SpringBootFileManagerApplication {
      */
     @RequestMapping("upload")
     public Object upload(@RequestParam("destination") String destination, HttpServletRequest request) {
+        String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+        SimpleDateFormat dt = new SimpleDateFormat(DATE_FORMAT);
+        System.out.println("upload ation ......."+dt.format(new Date()));
 
         try {
             // Servlet3.0方式上传文件
