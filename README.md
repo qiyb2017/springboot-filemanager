@@ -17,28 +17,5 @@
 * 即将支持 OFFICE 等文档在线编辑以及协同写作 (估计下一版本吧)
 
 
-#[更多介绍请访问](http://shaofan.org/angular-filemanager/)
-
-#截图
-
-<a href="http://alexphoto.b0.upaiyun.com/ghost/angular-filemanager/screenshot.gif" target="_blank"><img src="http://alexphoto.b0.upaiyun.com/ghost/angular-filemanager/screenshot.gif" ></a>
-
-
-<a href="http://alexphoto.b0.upaiyun.com/ghost/angular-filemanager/screenshot.gif" target="_blank"><img src="http://alexphoto.b0.upaiyun.com/ghost/angular-filemanager/office.gif" ></a>
-
-#运行
-
-* 检出项目 <code class="code-normal">git clone https://git.oschina.net/alexyang/spring-boot-filemanager.git</code>
-* 再项目根目录执行 <code class="code-normal">mvn spring-boot:run</code> 或运行<code class="code-normal">SpringBootFileManagerApplication</code>
-
-#编译angular-filemanager
-
-> 其实利用webjars可以做到用java去编译，以后空了再弄吧。
-
-* 编译需要用到<code class="code-normal">node.js</code>和<code class="code-normal">gulp</code>模块
-* 先安装全局gulp模块 <code class="code-normal">npm install -g gulp</code>
-* 然后在项目根目录执行<code class="code-normal">npm install</code>
-* 最后打包编译到dist目录下 <code class="code-normal">gulp build</code>
-
 
 
